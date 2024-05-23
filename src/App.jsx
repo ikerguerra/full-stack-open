@@ -1,63 +1,95 @@
-// Nota: en este punto puedes asumir que siempre hay tres elementos, por lo que no es necesario pasar por los arrays usando bucles.
+import { useState } from "react"
 
-const Header = (props) => {
+const Button = (props) => {
   return (
-    <h1>{props.course}</h1>
+    <button onClick={props.onClick}>{props.text}</button>
   )
 }
 
-const Part = (props) => {
-  
+const Statistics = (props) => {
   return (
-    <p>
-      {props.part} {props.exercise}
-    </p>
+    <StatisticsLine text={props.text} value={props.value} />
   )
 }
 
-const Content = (props) => {
-
+const StatisticsLine = (props) => {
   return (
-    <>
-      <Part part={props.parts[0].name} exercise={props.parts[0].exercises} />
-      <Part part={props.parts[1].name} exercise={props.parts[1].exercises} />
-      <Part part={props.parts[2].name} exercise={props.parts[2].exercises} />
-    </>
-  )
-}
-
-const Total = (props) => {
-  return (
-    <p>Number of exercises {props.parts[0].exercises + props.parts[1].exercises + props.parts[2].exercises}</p>
+    <tr>
+      <td>{props.text}</td>
+      <td>{props.value}</td>
+    </tr>
   )
 }
 
 const App = () => {
-  const course = {
-    name: 'Half Stack application development',
-    parts: [
-      {
-        name: 'Fundamentals of React',
-        exercises: 10
-      },
-      {
-        name: 'Using props to pass data',
-        exercises: 7
-      },
-      {
-        name: 'State of a component',
-        exercises: 14
-      }
-    ]
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
+  const [all, setAll] = useState(0)
+  const [average, setAverage] = useState(0)
+  const [positive, setPositive] = useState(0)
+
+  const handleClickGood = () => {
+    const updatedGood = good + 1
+    const updatedAll = all + 1
+
+    setGood(updatedGood)
+    setAll(updatedAll)
+    setAverage((updatedGood - bad) / updatedAll)
+    setPositive((updatedGood * 100) / updatedAll)
   }
-  
-  return (
-    <div>
-      <Header course={course.name} />
-      <Content parts={course.parts} />
-      <Total parts={course.parts} />
-    </div>
-  )
+
+  const handleClickNeutral = () => {
+    const updatedAll = all + 1
+
+    setNeutral(neutral + 1)
+    setAll(updatedAll)
+    setAverage((good - bad) / updatedAll)
+    setPositive((good * 100) / updatedAll)
+  }
+
+  const handleClickBad = () => {
+    const updatedBad = bad + 1
+    const updatedAll = all + 1
+
+    setBad(updatedBad)
+    setAll(updatedAll)
+    setAverage((good - updatedBad) / updatedAll)
+    setPositive((good * 100) / updatedAll)
+  }
+
+  if (all > 0) {
+    return (
+      <div>
+        <h1>give feedback</h1>
+        <Button onClick={handleClickGood} text="good" />
+        <Button onClick={handleClickNeutral} text="neutral" />
+        <Button onClick={handleClickBad} text="bad" />
+        <h1>statistics</h1>
+        <table>
+          <tbody>
+            <Statistics text='good' value={good} />
+            <Statistics text='neutral' value={neutral} />
+            <Statistics text='bad' value={bad} />
+            <Statistics text='all' value={good + neutral + bad} />
+            <Statistics text='average' value={average.toFixed(1)} />
+            <Statistics text='positive' value={positive.toFixed(1) + '%'} />
+          </tbody>
+        </table>
+      </div>
+    ) 
+  } else {
+    return (
+      <div>
+        <h1>give feedback</h1>
+        <Button onClick={handleClickGood} text="good" />
+        <Button onClick={handleClickNeutral} text="neutral" />
+        <Button onClick={handleClickBad} text="bad" />
+        <h1>statistics</h1>
+        <p>No feedback given</p>
+      </div>
+    ) 
+  }
 }
 
 export default App
